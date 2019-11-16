@@ -51,83 +51,19 @@ animation: up 1s linear;
 -webkit-animation-fill-mode: both;
 animation-fill-mode: both;
 }
-
-.box{width:800px; height:500px; margin:30px auto; border:1px solid red;}
-
-.ok{width:200px; height:100px; margin:0 auto; text-align:center; background:#999; line-height:100px; color:#FFF; display:none; }
-
-.tbox{width:800px; height:500px; position: relative;}
-
-.aa{
+body,html{
 	width:100%;
-	height: 30%;
-	display: flex;
-	justify-content: left;
-	margin:20px;
-	position: absolute;
-	top: 50px;
+	height:100%;
+}
+.box{width:40%; height:40%; margin:30px auto; border:1px solid red;}
 
-}
-.bb{
-	width:100%;
-	height: 30%;
-	display: flex;
-	justify-content: left;
-	margin:20px;
-	position: absolute;
-	top: 100px;
 
-}
-.cc{
-	width:100%;
-	height: 30%;
-	display: flex;
-	justify-content: left;
-	margin:20px;
-	position: absolute;
-	top: 150px;
-}
-.dd{
-	width:100%;
-	height: 30%;
-	display: flex;
-	justify-content: left;
-	margin:20px;
-	position: absolute;
-	top: 200px;
-}
-.aa-tiao{
-	width:0px; height:49px; text-align:center;
+.tbox{width:100%; height:100%; position: relative;}
 
-	font-family:Tahoma; font-size:18px; line-height:48px; 
-	background-color: yellow;
-	opacity: 0.8;
-}
-.bb-tiao{
-	width:0px; height:49px; text-align:center;
-	font-family:Tahoma; font-size:18px; line-height:48px; 
-	background-color: red;
-		opacity: 0.8;
-}
-.cc-tiao{
-	width:0px; height:49px; text-align:center;
-
-		font-family:Tahoma; font-size:18px; line-height:48px; 
-	background-color: orange;
-		opacity: 0.8;
-}
-.dd-tiao{
-	width:0px; height:49px; text-align:center;
-
-		font-family:Tahoma; font-size:18px; line-height:48px; 
-	background-color: green;
-		opacity: 0.8;
-}
+/**/
 </style>
 
 <div class="box">
-
-    <div class="ok"></div>
 
     <div class="tbox" id="tbox">
     </div>
@@ -147,48 +83,47 @@ function EchartObj(domId,option){
 	this.data = option.data?option.data:[];
 	this.color = option.color?option.color:["#8600FF","#FF00FF","#0000E3","#F9F900","#FF5809","#00FFFF","#B87070","#A5A552","#73BF00","#00DB00"];
 	this.arrObj = [];
+	this.childrenHeight = this.domHeight/this.data.length;
 }
 
 EchartObj.prototype ={
 	constructor:EchartObj,
 	createBarobj:function(){
 		if(this.data){
+			console.log(this.childrenHeight)
 			$.each(this.data,(i,v)=>{
 				var barDomId = getId(8);
-				
-			
 				$("#"+this.domId).append("<div id="+barDomId+" class="+barDomId+">" +
         			"<div class=''></div>" +
         			"<span class=''></span>" +
         			" </div>"
     			);
-			
     			$("#"+barDomId).css({
     				"width":"100%",
-					"height": "30%",
+					"height": this.childrenHeight+"px",
 					"display": "flex",
 					"justify-content": "left",
-					"margin":"20px",
+					// "margin":"20px",
 					"position":"absolute",
-					"top": 50*(i+1)+"px"
+					"top": this.childrenHeight*i+"px"
     			})
     			$("#"+barDomId+" div:eq(0)").css({
     				"width":"0px",
-    				"height":"49px",
+    				"height":this.childrenHeight+"px",
     				"text-align":"center",
 					"font-family":"Tahoma",
 					"font-size":"18px",
-					"line-height":"48px", 
+					"line-height":this.childrenHeight+"px",
 					"background-color": this.color[i],
 					"opacity":"0.8"
     			})
-    			var barObj = new BarObj(barDomId,v);
+    			var barObj = new BarObj(barDomId,v,this.childrenHeight);
+    			console.log(barObj.rank)
 				barObj.setSpeed();
 				this.arrObj.push(barObj);
 			})
 		}
 	}
-
 }
 var option = {
 	data:[[10,50],[20,30],[20,40],[5,20]],
@@ -196,28 +131,29 @@ var option = {
 }
 
 
-function BarObj(domId,data) {
-    this.domId = domId;
+function BarObj(barDomId,data,height) {
+    this.barDomId = barDomId;
     this.num = parseInt(data[0]); 
     this._num = parseInt(data[0]);
     this.endData = parseInt(data[1]);
-    this.top = $("#"+this.domId).position().top;
-    this.rank = this.top/50;
+    this.height = height ;
+    this.top = $("#"+this.barDomId).position().top;
+    this.rank = this.top/this.height;
     this.interval = 30/(parseInt(data[1]) - parseInt(data[0]));
     this.timmer=null;
 }
 BarObj.prototype={
     constructor:BarObj,
     setTop :function (topNum) {
-        $('#'+this.domId).animate({
+        $('#'+this.barDomId).animate({
               top: topNum+'px'
             },1000
         );
     },
     add:function(i){
-        var $aa =$("#"+this.domId).find("div:eq(0)");
+        var $aa =$("#"+this.barDomId).find("div:eq(0)");
 		$aa.css("width",i+"%");
-		$("#"+this.domId).find("span:eq(0)").html(i+"%")
+		$("#"+this.barDomId).find("span:eq(0)").html(i+"%")
 	},
 	setSpeed:function(){
 		if(this.num>=this.endData){
@@ -240,93 +176,6 @@ var echartObj = new EchartObj("tbox",option);
 echartObj.createBarobj();
 
 
-
-// var bbObj = new BarObj("bb",[20,30]);
-
-// var ccObj = new BarObj("cc",[20,40]);
-
-// var ddObj = new BarObj("dd",[5,20]);
-
-// var arrObj = [aaObj,bbObj,ccObj,ddObj]
-
-
-// function aaxh(){
-
-// 		if(bbObj.num>100){
-
-// 			// $(".ok").html("加载完成").fadeIn("slow");
-// 			return;
-		
-// 		}else if(aaObj.num<=30){
-
-// 			setTimeout("aaxh()",500)
-
-// 			aaObj.add(aaObj.num);
-
-// 		    aaObj.num++;
-		
-// 		}else{
-// 			setTimeout("aaxh()",2000)
-
-// 			aaObj.add(aaObj.num);
-
-// 		    aaObj.num++;
-// 		}
-// 	}
-// 		function bbxh(){
-
-// 			if(bbObj.num>100){
-
-// 				// $(".ok").html("加载完成").fadeIn("slow");
-// 				return;
-// 			}
-// 			if(bbObj.num<=8){
-
-// 				setTimeout("bbxh()",1000)
-
-// 				bbObj.add(bbObj.num);
-// 			    bbObj.num++;
-// 			}else{
-// 				setTimeout("bbxh()",2000)
-
-// 				bbObj.add(bbObj.num);
-// 				bbObj.num++;
-// 			}
-// 		}
-// 		function ccxh(){
-
-// 		if(ccObj.num>100){
-
-// 			// $(".ok").html("加载完成").fadeIn("slow");
-// 			return;
-// 			}
-
-// 		if(ccObj.num<=100){
-
-// 			setTimeout("ccxh()",1300)
-
-// 			ccObj.add(ccObj.num);
-
-// 		    ccObj.num++;
-// 			}
-// 		}
-// 		function ddxh(){
-
-// 		if(ddObj.num>100){
-
-// 			// $(".ok").html("加载完成").fadeIn("slow");
-// 			return;
-// 			}
-
-// 		if(ddObj.num<=100){
-
-// 			setTimeout("ddxh()",1300)
-
-// 			ddObj.add(ddObj.num);
-
-// 		    ddObj.num++;
-// 			}
-// 		}
 var arrObj = echartObj.arrObj;
 for (let i in arrObj) {
     	if(typeof arrObj[i].num === 'number'){
@@ -334,16 +183,16 @@ for (let i in arrObj) {
 			    set: function (value) {
 			       if(arrObj[i]._num != value){
 			        	arrObj[i]._num= value;
-			        	if(arrObj[i].rank>1){
+			        	if(arrObj[i].rank>=1){
 			        		$.each(arrObj,function(j,v){
 			        			if(arrObj[i].rank-arrObj[j].rank==1){
 			        				if(arrObj[i]._num > arrObj[j]._num){
 			        					var temp = arrObj[i].rank;
 			        					arrObj[i].rank = arrObj[j].rank;
 			        					arrObj[j].rank = temp;
-			        					arrObj[i].top = arrObj[i].top -50;
+			        					arrObj[i].top = arrObj[i].top-arrObj[i].height;
 			        					arrObj[i].setTop(arrObj[i].top)
-			        					arrObj[j].top = arrObj[j].top+50
+			        					arrObj[j].top = arrObj[j].top+arrObj[j].height
 			        					arrObj[j].setTop(arrObj[j].top)
 			        				}
 			        			}	
@@ -362,17 +211,6 @@ for (let i in arrObj) {
     	}
     }
 
-
-// $(document).ready(function(){	
-		// aaxh();
-		// bbxh();
-		// ccxh();
-		// ddxh();
-// });
-// aaObj.setSpeed();
-// bbObj.setSpeed();
-// ccObj.setSpeed();
-// ddObj.setSpeed();
 
 </script>
 </body>
