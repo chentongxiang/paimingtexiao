@@ -11,8 +11,11 @@
 		this.option = option;
 		this.data = option.data?option.data:[];
 		this.color = option.color?option.color:["#8600FF","#FF00FF","#0000E3","#F9F900","#FF5809","#00FFFF","#B87070","#A5A552","#73BF00","#00DB00"];
+		this.time = option.time?option.time:30;
 		this.arrObj = [];
 		this.childrenHeight = this.domHeight/this.data.length;
+		this.positionHeight = this.domHeight/(this.data.length+1);
+		this.maxdata = "";
 		this.createBarobj();
 		this.monitorChange();
 	}
@@ -22,6 +25,7 @@
 		createBarobj:function(){
 			if(this.data){
 				$.each(this.data,(i,v)=>{
+					this.maxdata = this.maxdata>v[1] ? this.maxdata:v[1];
 					var barDomId = getId(8);
 					this.$element.append("<div id="+barDomId+" class="+barDomId+">" +
 	        			"<div class=''></div>" +
@@ -30,7 +34,7 @@
 	    			);
 	    			$("#"+barDomId).css({
 	    				"width":"100%",
-						"height": this.childrenHeight+"px",
+						"height": this.positionHeight+"px",
 						"display": "flex",
 						"justify-content": "left",
 						// "margin":"20px",
@@ -39,7 +43,7 @@
 	    			})
 	    			$("#"+barDomId+" div:eq(0)").css({
 	    				"width":"0px",
-	    				"height":this.childrenHeight+"px",
+	    				"height":this.positionHeight+"px",
 	    				"text-align":"center",
 						"font-family":"Tahoma",
 						"font-size":"18px",
@@ -47,7 +51,7 @@
 						"background-color": this.color[i],
 						"opacity":"0.8"
 	    			})
-	    			var barObj = new BarObj(barDomId,v,this.childrenHeight);
+	    			var barObj = new BarObj(barDomId,v,this.childrenHeight,this.time);
 					barObj.setSpeed();
 					this.arrObj.push(barObj);
 				})
@@ -63,6 +67,7 @@
 					        	arrObj[i]._num= value;
 					        	if(arrObj[i].rank>=1){
 					        		$.each(arrObj,function(j,v){
+
 					        			if(arrObj[i].rank-arrObj[j].rank==1){
 					        				if(arrObj[i]._num > arrObj[j]._num){
 					        					var temp = arrObj[i].rank;
@@ -99,15 +104,15 @@
 		}
 	}
 		
-	function BarObj(barDomId,data,height) {
+	function BarObj(barDomId,data,height,time) {
 	    this.barDomId = barDomId;
 	    this.num = parseInt(data[0]); 
 	    this._num = parseInt(data[0]);
 	    this.endData = parseInt(data[1]);
 	    this.height = height ;
 	    this.top = $("#"+this.barDomId).position().top;
-	    this.rank = this.top/this.height;
-	    this.interval = 30/(parseInt(data[1]) - parseInt(data[0]));
+	    this.rank = Math.round(this.top/this.height);
+	    this.interval = time/(parseInt(data[1]) - parseInt(data[0]));
 	    this.timmer=null;
 	}
 	BarObj.prototype={
