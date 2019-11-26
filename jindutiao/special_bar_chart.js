@@ -26,6 +26,12 @@
 			if(this.data){
 				$.each(this.data,(i,v)=>{
 					this.maxdata = this.maxdata>v[1] ? this.maxdata:v[1];
+				})
+				$.each(this.data,(i,v)=>{
+					this.data[i] = [(v[0]/this.maxdata).toFixed(2)*100,(v[1]/this.maxdata).toFixed(2)*100];
+				})
+				$.each(this.data,(i,v)=>{
+					
 					var barDomId = getId(8);
 					this.$element.append("<div id="+barDomId+" class="+barDomId+">" +
 	        			"<div class=''></div>" +
@@ -55,6 +61,7 @@
 					barObj.setSpeed();
 					this.arrObj.push(barObj);
 				})
+				
 			}
 		},
 		monitorChange:function(){
