@@ -3,6 +3,13 @@
 	function getId(length) {
 	       return Number(Math.random().toString().substr(3,length) + Date.now()).toString(36);
 	}
+	function compare(property){
+	    return function(a,b){
+	        var value1 = a[property];
+	        var value2 = b[property];
+	        return  value2 - value1;
+	    }
+	}
 	function EchartObj(element,option){
 		this.element = element;
 		this.$element = $(element)
@@ -10,6 +17,7 @@
 		this.domHeight = this.$element.height();
 		this.option = option;
 		this.data = option.data?option.data:[];
+		this.dealData = this.data?this.data.sort(compare(1)):[];
 		this.color = option.color?option.color:["#8600FF","#FF00FF","#0000E3","#F9F900","#FF5809","#00FFFF","#B87070","#A5A552","#73BF00","#00DB00"];
 		this.time = option.time?option.time:30;
 		this.arrObj = [];
@@ -23,12 +31,15 @@
 	EchartObj.prototype ={
 		constructor:EchartObj,
 		createBarobj:function(){
+			this.$element.css({
+				"position": "relative"
+			})
 			if(this.data){
-				$.each(this.data,(i,v)=>{
+				$.each(this.dealData,(i,v)=>{
 					this.maxdata = this.maxdata>v[1] ? this.maxdata:v[1];
 				})
-				$.each(this.data,(i,v)=>{
-					this.data[i] = [(v[0]/this.maxdata).toFixed(2)*100,(v[1]/this.maxdata).toFixed(2)*100];
+				$.each(this.dealData,(i,v)=>{
+					this.dealData[i] = [(v[0]/this.maxdata).toFixed(2)*100,(v[1]/this.maxdata).toFixed(2)*100];
 				})
 				$.each(this.data,(i,v)=>{
 					
